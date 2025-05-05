@@ -1,0 +1,245 @@
+Hadoop - Word Count
+
+Steps & Code
+
+1.Open terminal student@student:
+
+  Put su -hadoop
+	
+  Enter password : student
+
+  We are in hadoop now
+
+2.cd hadoop
+  
+  hadoop ka hadoop folder
+
+  This folder is located in Files -> Other -> Computer -> hadoop(Search for it in the search bar)->(If asked for password put student) -> hadoop 
+
+  The path should look like Administrator Root / home / hadoop / hadoop 
+
+  Here the txt file will be created
+
+  should look like hadoop@student:~/hadoop$ in terminal
+
+3.nano abhi.txt
+
+  This opens the nano GUI 
+
+  Put words here
+
+  For example abhi diu abhi diu abhi abhi diu
+
+  This file contents will be counted 
+
+  So final output will be abhi 4 diu 3 at the end
+
+  CTRL + S (to save),CTRL + X(to exit) which will bring us back to terminal
+
+  File will be created at the location we saw above in step 2
+
+4.start-all.sh
+
+  This will start hadoop
+
+5.Open a second terminal and put ifconfig
+
+  Copy the IP Address from there . It will be infront of inet
+
+  It will be something like 10.11.5.30, copy it.
+
+6.Open a web browser
+
+  Paste the IP address and add :9870 infront of it
+
+  It will look something like 10.11.5.30:9870
+
+  Run it and it will open HDFS
+
+7.Top right of the start menu will have Utilities
+  
+  Click it , it will give a drop down menu where we click Browse the file system
+
+  Here we will be seeing a file system and in this system we will create a directory
+
+8.In the hadoop terminal , put this command
+
+  hdfs dfs -mkdir/testabhi
+
+  This directory will be created in HDFS File system we saw in step 7
+
+9.Put this command next
+
+  hdfs dfs -put admin:///home/hadoop/hadoop/abhi.txt /testabhi
+
+  or this one if that doesnt work
+
+  hdfs dfs -put /home/hadoop/hadoop/abhi.txt /testabhi
+
+  This will create the abhi.txt file inside the testabhi directory (abhi.txt wasnt there in testabhi directory earlier in step 8)
+
+10.Now we will write the codes for three files - Mapper,Reducer,Runner
+
+  (A) - For Mapper
+
+  		nano WC_Mapper.java
+
+  		Opens the nano GUI 
+
+  		Paste this code there
+
+  		    package com.javatpoint;  
+      
+		    import java.io.IOException;    
+		    import java.util.StringTokenizer;    
+		    import org.apache.hadoop.io.IntWritable;    
+		    import org.apache.hadoop.io.LongWritable;    
+		    import org.apache.hadoop.io.Text;    
+		    import org.apache.hadoop.mapred.MapReduceBase;    
+		    import org.apache.hadoop.mapred.Mapper;    
+		    import org.apache.hadoop.mapred.OutputCollector;    
+		    import org.apache.hadoop.mapred.Reporter;    
+		    
+		    public class WC_Mapper extends MapReduceBase implements Mapper<LongWritable,Text,Text,IntWritable>{    
+		        private final static IntWritable one = new IntWritable(1);    
+		        private Text word = new Text();    
+		        
+		        public void map(LongWritable key, Text value,OutputCollector<Text,IntWritable> output,     
+		        Reporter reporter) throws IOException{    
+		            
+		            String line = value.toString();    
+		            StringTokenizer  tokenizer = new StringTokenizer(line);    
+		            while (tokenizer.hasMoreTokens()){    
+		                word.set(tokenizer.nextToken());    
+		                output.collect(word, one);    
+		            }    
+		        }    
+		    }
+
+		 CTRL + S (to save),CTRL + X(to exit) which will bring us back to terminal
+
+	(B) - For Reducer
+
+		  nano WC_Reducer.java
+
+		  Opens the nano GUI
+
+		  Paste this code there
+
+		    package com.javatpoint;  
+	        
+	        import java.io.IOException;    
+	        import java.util.Iterator;    
+	        import org.apache.hadoop.io.IntWritable;    
+	        import org.apache.hadoop.io.Text;    
+	        import org.apache.hadoop.mapred.MapReduceBase;    
+	        import org.apache.hadoop.mapred.OutputCollector;    
+	        import org.apache.hadoop.mapred.Reducer;    
+	        import org.apache.hadoop.mapred.Reporter;    
+	            
+	        public class WC_Reducer  extends MapReduceBase implements Reducer<Text,IntWritable,Text,IntWritable> {    
+	        	public void reduce(Text key, Iterator<IntWritable> values,OutputCollector<Text,IntWritable> output,    
+	         	Reporter reporter) throws IOException {    
+	        			int sum=0;    
+	        			
+	        			while (values.hasNext()) {    
+	        				sum+=values.next().get();    
+	        			}    
+	        			
+	        			output.collect(key,new IntWritable(sum));    
+	        	}    
+	        }
+
+	        CTRL + S (to save),CTRL + X(to exit) which will bring us back to terminal
+
+	(C) - For Runner
+
+		  nano WC_Runner.java
+
+		  Opens the nano GUI
+
+		  Paste this code there
+
+		    package com.javatpoint;  
+      
+	        import java.io.IOException;    
+	        import org.apache.hadoop.fs.Path;    
+	        import org.apache.hadoop.io.IntWritable;    
+	        import org.apache.hadoop.io.Text;    
+	        import org.apache.hadoop.mapred.FileInputFormat;    
+	        import org.apache.hadoop.mapred.FileOutputFormat;    
+	        import org.apache.hadoop.mapred.JobClient;    
+	        import org.apache.hadoop.mapred.JobConf;    
+	        import org.apache.hadoop.mapred.TextInputFormat;    
+	        import org.apache.hadoop.mapred.TextOutputFormat;    
+	        
+	        public class WC_Runner {    
+	            public static void main(String[] args) throws IOException{    
+	                JobConf conf = new JobConf(WC_Runner.class);    
+	                
+	                conf.setJobName("WordCount");    
+	                conf.setOutputKeyClass(Text.class);    
+	                conf.setOutputValueClass(IntWritable.class);            
+	                conf.setMapperClass(WC_Mapper.class);    
+	                conf.setCombinerClass(WC_Reducer.class);    
+	                conf.setReducerClass(WC_Reducer.class);         
+	                conf.setInputFormat(TextInputFormat.class);    
+	                conf.setOutputFormat(TextOutputFormat.class);           
+	                
+	                FileInputFormat.setInputPaths(conf,new Path(args[0]));    
+	                FileOutputFormat.setOutputPath(conf,new Path(args[1]));     
+	                
+	                JobClient.runJob(conf);    
+	            }    
+	        }  	   
+
+11.We have written all the code . Now to compile it , use the following command in hadoop terminal
+
+   javac -classpath "$(hadoop classpath)" -d . WC_Mapper.java WC_Reducer.java WC_Runner.java
+
+   Running this command in terminal will generate the class files.
+
+   These will be located inside hadoop folder of hadoop at 
+
+   com -> (Put password student) -> javatpoint -> Class files will be here (WC_Mapper.class,WC_Reducer.class,WC_Runner.class)
+
+12.Next we create a jar file
+   
+   Put this command
+
+   jar -cvf wordcount.jar com
+
+   adds this jar file in hadoop
+
+13.Now we create the output folder in the browser
+
+   Put the following command in terminal 
+
+   hadoop jar /home/hadoop/hadoop/wordcount.jar com.javatpoint.WC_Runner /testabhi/abhi.txt /r_outputabhi
+
+   (here long compilation will be seen , dont worry )
+
+   This will create r_outputabhi directory(folder) in the HDFS file system on browser which will contain our output
+
+14.To see the output, put the following command
+
+   hdfs dfs -cat /r_outputabhi/part-00000
+
+   Running this will show 
+   abhi 4
+   diu 3
+
+   which matches with what we put in the abhi.txt earlier in step 3 
+
+   This completes the hadoop practical
+
+
+
+
+
+
+
+
+
+
+
