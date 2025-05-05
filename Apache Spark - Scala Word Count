@@ -1,0 +1,134 @@
+Apache Spark - Scala Word Count 
+
+Steps & Code
+
+1. Open terminal
+
+2. echo $SHELL - Checks for bash
+
+3. Create DSBDAL directory (folder) in Home
+
+4. Copy and paste the spark-3.5.5-bin-hadoop3 file in DSBDAL directory
+
+5. Extract the file in that directory (the contents of the zip file should be extracted in the DSBDAL directory)
+
+-Optional Steps 5(A) and 5(B) to be skipped . Only visit them if any error occurs regarding java path or directory errors
+
+5.5 (A) If in case that is not working (wont happen most likely) , try this :
+	
+	mkdir -p DSBDAL1
+    tar -xvzf ~/spark-3.5.5-bin-hadoop3.tgz -C ~/DSBDAL1
+5.5 (B) Check if java is installed 
+		
+			java -version
+
+		It most likely will be installed but if JAVA_HOME error occurs 
+
+			nano ~/.bashrc
+
+		Scroll to the bottom with arrow down key
+
+		Paste these two lines at the bottom
+
+			export JAVA_HOME="/usr/lib/jvm/java-17-openjdk-amd64"
+			export PATH="$JAVA_HOME/bin:$PATH" 
+
+		CTRL + S (to save),CTRL + X(to exit) which will bring us back to terminal
+
+		If you dont know where the path of Java is 
+		We can use to find what the path is of the java version using 
+
+			readlink -f $(which java)
+
+		It will return something like /usr/lib/jvm/java-17-openjdk-amd64, paste this inside double quotes at the first line after export JAVA_HOME= 
+
+6. After extracting the file in DSBDAL Directory
+	
+	nano ~/.bashrc
+
+7. Scroll down to the bottom and put this line 
+	
+	export PATH = "$/home/student/DSBDAL/spark-3.5.5-bin-hadoop3/bin:$PATH"
+
+	CTRL + S (to save),CTRL + X(to exit) which will bring us back to terminal
+
+8. Move to DSBDAL Directory in terminal using cd DSBDAL (or cd ~/DSBDAL if previous doesnt work)
+
+9. Create input file 
+	
+	Type this command
+
+		nano wordinput.txt
+
+	This opens nano GUI, type any paragraph line by line. Sample given below
+
+		Apache Spark is an open-source unified analytics engine for big data processing, with built-in modules for streaming, SQL, machine learning, and graph processing.
+		It provides an easy-to-use interface for processing large datasets in a distributed computing environment. 
+		Spark can handle both batch and real-time data processing workloads and is known for its high performance, making it a popular choice for big data applications.
+
+	CTRL + S (to save),CTRL + X(to exit) which will bring us back to terminal
+
+10. Open Spark Shell using 
+	
+	spark-shell
+
+11. Type the following code line by line
+	
+	val inputfile = sc.textFile("/home/student/DSBDAL/wordinput.txt")
+	val counts = inputfile.flatMap(line => line.split(" ")).map(word => (word, 1)).reduceByKey(_+_);
+	counts.toDebugString
+	counts.cache()
+	counts.saveAsTextFile("output")
+
+	If the second line gives error file does not exist, check the file path inside the double quotes and put the correct one
+
+	If it still doesnt work try this val inputfile = sc.textFile("file:///home/student/DSBDAL/wordcount_input.txt")
+
+12. The program is compiled and output has been generated till now
+
+13. To see the output , put the following commands line by line 
+
+	cd DSBDAL/output
+	ls -1
+
+	This will give output as
+
+		_SUCCESS
+		part-00000
+		part-00001
+
+	To view both parts, put the following commands
+
+	cat part-00000
+
+	(This gives part one of the output)
+
+	cat part-00001
+
+	(This gives the second part)
+
+14. There is a second method to run the code - By creating a wordcount.scala file after step 9
+
+	Stay at DSBDAL Directory in terminal
+
+	Type nano wordcount.scala
+
+	Opens the Scala GUI
+
+	Type the code
+
+		val inputfile = sc.textFile("/home/student/DSBDAL/wordinput.txt")
+		val counts = inputfile.flatMap(line => line.split(" ")).map(word => (word,1)).reduceByKey(_+_)
+		counts.toDebugString
+		counts.cache()
+		counts.saveAsTextFile("output")
+
+	CTRL + S (to save),CTRL + X(to exit) which will bring us back to terminal
+
+	Then type scala-spark < wordcount.scala
+
+	This will compile the code and generate output
+
+	To view the output , proceed like step 13
+
+
