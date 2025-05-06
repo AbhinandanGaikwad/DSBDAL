@@ -1,0 +1,61 @@
+import pandas as pd
+import numpy as np
+import seaborn as sns
+from sklearn.linear_model import LogisticRegression
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import confusion_matrix, accuracy_score, precision_score, recall_score, f1_score
+
+iris_data = sns.load_dataset('iris')
+iris_data
+
+iris_data.head()
+
+iris_data['species'] = iris_data['species'].map({'setosa' : 0,'versicolor': 1,'virginica' : 2})
+
+print("Class Distribution : ")
+print(iris_data['species'].value_counts())
+
+p0 = 50/150
+p1 = 50/150
+p2 = 50/150
+print(p0)
+print(p1)
+print(p2)
+
+print(f"P(Class 0 - setosa): {p0}")
+print(f"P(Class 1 - versicolor): {p1:.2f}")
+print(f"P(Class 0 - virginica): {p2:.2f}")
+
+X = iris_data.iloc[:, :-1]
+y = iris_data.iloc[:, -1]
+
+X_train,X_test,y_train,y_test = train_test_split(X,y,test_size = 0.2,random_state = 42)
+
+model = LogisticRegression(multi_class = 'multinomial',solver = 'lbfgs', max_iter = 200)
+model.fit(X_train,y_train)
+
+y_pred = model.predict(X_test)
+
+conf_matrix = confusion_matrix(y_test,y_pred)
+print("\nConfusion Matrix : ")
+print(conf_matrix)
+
+TP = np.diag(conf_matrix)
+FP = conf_matrix.sum(axis = 0) - TP
+FN = conf_matrix.sum(axis = 1) - TP
+TN = conf_matrix.sum() - (FP + FN + TP)
+
+accuracy = accuracy_score(y_test,y_pred)
+error_rate = 1 - accuracy
+precision = precision_score(y_test,y_pred,average = 'macro')
+recall = recall_score(y_test,y_pred,average = 'macro')
+
+
+print(f"Accuracy: {accuracy:.2f}")
+print(f"Error Rate: {error_rate:.2f}")
+print(f"Precision: {precision:.2f}")
+print(f"Recall: {recall:.2f}")
+print(f"True Positives: {TP}")
+print(f"False Positives: {FP}")
+print(f"False Negatives: {FN}")
+print(f"True Negatives: {TN}")
