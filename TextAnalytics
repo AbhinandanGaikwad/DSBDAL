@@ -1,17 +1,30 @@
 import nltk
+import string
+import pandas as pd
 import numpy as np
 from nltk.tokenize import word_tokenize, sent_tokenize
 from nltk.corpus import stopwords
 from nltk.stem import SnowballStemmer, WordNetLemmatizer
 from sklearn.feature_extraction.text import TfidfVectorizer
+from wordcloud import WordCloud
+import matplotlib.pyplot as plt
 
 stopword = set(stopwords.words("english"))
 print(stopword)
 
 text = """Natural Language Processing is a field of artificial intelligence that focuses on the interaction between computers and humans through language. It enables machines to understand, interpret, and generate human language. Applications of NLP include chatbots, sentiment analysis, and machine translation. Businesses use NLP to analyze customer feedback and improve user experience."""
+#df = pd.read_csv(r"C:\Users\abhin\Downloads\archive (1)\Reviews.csv")
+#pd.set_option('display.max_colwidth', None)
+#df
+
+#documents = df['Text'].dropna().head(5)
+#documents
 
 word_tokens = word_tokenize(text)
 sent_tokens = sent_tokenize(text)
+#or 
+word_tokens = documents.apply(word_tokenize)
+sent_tokens = documents.apply(sent_tokenize)
 
 print(word_tokens)
 
@@ -26,6 +39,10 @@ print(punctuation_removed)
 stemmer = SnowballStemmer("english")
 stemmed_words = [stemmer.stem(words) for words in word_tokens]
 print(stemmed_words)
+#or 
+stemmer = SnowballStemmer("english")
+stemmed_words = punctuation_removed.apply(lambda tokens: [stemmer.stem(word) for word in tokens])
+print(stemmed_words.to_string(index=False))
 
 lemmatizer = WordNetLemmatizer()
 lemmatized_words = [lemmatizer.lemmatize(words) for words in word_tokens]
@@ -67,3 +84,11 @@ for i, doc in enumerate(documents):
  plt.imshow(wordcloud, interpolation='bilinear')
  plt.axis("off")
  plt.show()
+
+#Before vectorizer
+text = ' '.join(punctuation_removed.sum())
+documents = df['Text'].head(5).tolist()
+
+#Before Wordcloud
+documents = df['Text'][:5].tolist()
+document = " ".join(documents)
