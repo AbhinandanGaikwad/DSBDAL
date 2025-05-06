@@ -1,0 +1,113 @@
+import pandas as pd
+import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+data = pd.read_csv('data.csv')
+data
+
+data.info()
+
+data.describe()
+
+data['age'].min()
+
+data['age'].max()
+
+data['age'].mean()
+
+data['age'].median()
+
+data['age'].std()
+
+data.income.nunique()
+
+data.groupby(['income','age']).count()
+
+data.groupby(['income','age']).min()
+
+data.groupby(['income','age']).max()
+
+data.groupby('income')['age'].mean()
+
+data.groupby('income')['age'].median()
+
+data.groupby('income')['age'].std()
+
+data.groupby('income')['age'].min()
+
+data.groupby('income')['age'].max()
+
+iris_data = sns.load_dataset('iris')
+iris_data
+
+iris_data.describe()
+
+setosa_data= iris_data[iris_data['species']== 'setosa']
+print('\n\t\t----------SetosaData----------\n\n',setosa_data)
+versicolor_data= iris_data[iris_data['species']== 'versicolor']
+print('\n\t\t----------VersicolorData----------\n\n',versicolor_data)
+virginica_data= iris_data[iris_data['species'] == 'virginica']
+print('\n\t\t----------VirginicaData----------\n\n',virginica_data)
+
+setosa_data.describe()
+
+versicolor_data.describe()
+
+virginica_data.describe()
+
+def display_stats(species_data, species_name):
+ nc = ['sepal_length', 'sepal_width', 'petal_length', 'petal_width']
+ print(f"\n\n------------Statistics for {species_name}----------- : \n ")
+ print(f"------Mean------ \n: {species_data[nc].mean()}")
+ print(f"\n-----Standard Deviation:----- \n{species_data[nc].std()}")
+ print(f"\n-----25th Percentile :----- \n{species_data[nc].quantile(0.25)}")
+ print(f"\n-----50th Percentile :----- \n{species_data[nc].quantile(0.5)}")
+ print(f"\n-----75th Percentile :----- \n{species_data[nc].quantile(0.75)}")
+display_stats(setosa_data, 'setosa')
+display_stats(versicolor_data, 'versicolor')
+display_stats(virginica_data, 'virginica')
+
+setosa_data
+
+def calculate_mean(data):
+ if len(data) == 0:
+    return None
+ return sum(data) / len(data)
+
+def calculate_std(data,mean):
+ if len(data) <= 1:
+    return None
+ squared_diff = sum((value-mean)**2 for value in data)
+ return (squared_diff / len(data)) ** 0.5
+
+def calculate_percentile(data,percentile):
+ sorted_data = sorted(data)
+ index = int((percentile/100) * len(data) )
+ return sorted_data[index]
+
+def display_statistics(species_data, species_name):
+ 16
+columnList= ["sepal_length","sepal_width","petal_length","petal_width"] #Features List
+ print(f"\n---------Feature-WiseStatisticsfor{species_name}----------")
+ for col in columnList:
+    feature_data =species_data[col]
+    mean_value= calculate_mean(feature_data)
+    std_value =calculate_std(feature_data,mean_value)
+    percentile_25 = calculate_percentile(feature_data,25)
+    percentile_50 = calculate_percentile(feature_data,50) #Median
+    percentile_75 = calculate_percentile(feature_data,75)
+ 
+    print(f"\nFeature:{col}")
+    print(f" Mean:{mean_value}")
+    print(f" StandardDeviation: {std_value}")
+    print(f" 25thPercentile: {percentile_25}")
+    print(f" 50thPercentile(Median): {percentile_50}")
+    print(f" 75thPercentile: {percentile_75}")
+
+setosa_data= iris_data[iris_data['species']== 'setosa']
+versicolor_data= iris_data[iris_data['species']== 'versicolor']
+virginica_data= iris_data[iris_data['species'] == 'virginica']
+display_statistics(setosa_data, 'Iris-Setosa')
+display_statistics(versicolor_data, 'Iris-Versicolor')
+display_statistics(virginica_data, 'Iris-Virginica')
