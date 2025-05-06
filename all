@@ -1,0 +1,1507 @@
+(1)
+import nltk
+import string
+import pandas as pd
+import numpy as np
+from nltk.tokenize import word_tokenize, sent_tokenize
+from nltk.corpus import stopwords
+from nltk.stem import SnowballStemmer, WordNetLemmatizer
+from sklearn.feature_extraction.text import TfidfVectorizer
+from wordcloud import WordCloud
+import matplotlib.pyplot as plt
+
+stopword = set(stopwords.words("english"))
+print(stopword)
+
+text = """Natural Language Processing is a field of artificial intelligence that focuses on the interaction between computers and humans through language. It enables machines to understand, interpret, and generate human language. Applications of NLP include chatbots, sentiment analysis, and machine translation. Businesses use NLP to analyze customer feedback and improve user experience."""
+#df = pd.read_csv(r"C:\Users\abhin\Downloads\archive (1)\Reviews.csv")
+#pd.set_option('display.max_colwidth', None)
+#df
+
+#documents = df['Text'].dropna().head(5)
+#documents
+
+word_tokens = word_tokenize(text)
+sent_tokens = sent_tokenize(text)
+#or 
+word_tokens = documents.apply(word_tokenize)
+sent_tokens = documents.apply(sent_tokenize)
+
+print(word_tokens)
+
+print(sent_tokens)
+
+stopwords_removed = [words for words in word_tokens if words not in stopword]
+print(stopwords_removed)
+
+punctuation_removed = [words for words in word_tokens if words.isalpha()]
+print(punctuation_removed)
+
+stemmer = SnowballStemmer("english")
+stemmed_words = [stemmer.stem(words) for words in word_tokens]
+print(stemmed_words)
+#or 
+stemmer = SnowballStemmer("english")
+stemmed_words = punctuation_removed.apply(lambda tokens: [stemmer.stem(word) for word in tokens])
+print(stemmed_words.to_string(index=False))
+
+lemmatizer = WordNetLemmatizer()
+lemmatized_words = [lemmatizer.lemmatize(words) for words in word_tokens]
+print(lemmatized_words)
+
+pos_tags = nltk.pos_tag(word_tokens)
+print(pos_tags)
+
+documents = [text, "NLP techniques help in text mining and analytics."]
+vectorizer = TfidfVectorizer()
+tfidf_matrix = vectorizer.fit_transform(documents)
+
+feature_names = vectorizer.get_feature_names_out()
+print("\nTF-IDF Matrix:")
+print(np.round(tfidf_matrix.toarray(), 2))
+print("Feature Names:", feature_names)
+
+vectorizer = TfidfVectorizer()
+tfidf_matrix = vectorizer.fit_transform(documents)
+
+feature_names = vectorizer.get_feature_names_out()
+tfidf_array = tfidf_matrix.toarray()
+
+print("\nTF-IDF Scores:\n")
+for i, doc in enumerate(documents):
+    print(f"Document {i+1}:")
+    for word, score in zip(feature_names, tfidf_array[i]):
+        if score > 0:  
+            print(f"  {word}: {round(score, 4)}")
+    print("-" * 40)  
+
+ wordcloud = WordCloud(
+ width=800,
+ height=400,
+ background_color='white',
+ max_words=200
+ ).generate(document)
+ plt.figure(figsize=(10, 5))
+ plt.imshow(wordcloud, interpolation='bilinear')
+ plt.axis("off")
+ plt.show()
+
+#Before vectorizer
+text = ' '.join(punctuation_removed.sum())
+documents = df['Text'].head(5).tolist()
+
+#Before Wordcloud
+documents = df['Text'][:5].tolist()
+document = " ".join(documents)
+
+(2)
+import pandas as pd
+import numpy as np
+import warnings
+warnings.filterwarnings('ignore')
+df = pd.read_csv('/home/student/Downloads/Titanic-Dataset.csv')
+df
+
+df.head()
+
+df.shape
+
+df.get
+
+df.sample(891)
+
+df.isnull().sum()
+
+print(df.drop(['Cabin'], axis=1, inplace=True, errors='ignore'))  
+
+df["Age"].fillna(df["Age"].mean(), inplace=True)  
+
+print(df["Embarked"].fillna("S", inplace=True))  
+df.isnull().sum()
+
+df.describe()
+
+import seaborn as sns
+df["Survived"].value_counts()
+
+sns.countplot(x="Survived", data=df)
+
+sns.countplot(x="Sex",hue = "Survived",data = df)
+
+sns.countplot(x="Pclass",hue = "Survived", data=df)
+
+sns.countplot(x="Embarked",hue = "Survived", data=df)
+
+sns.countplot(x="Parch",hue = "Survived", data=df)
+
+sns.countplot(x="SibSp",hue = "Survived", data=df)
+
+sns.countplot(x="Age", hue="Survived", data=df)
+
+sns.countplot(x="Ticket", hue="Survived", data=df)
+
+sns.countplot(x="Fare", hue="Survived", data=df)
+
+sns.countplot(x="PassengerId", hue="Survived", data=df)
+
+
+import matplotlib.pyplot as plt
+plt.figure(figsize=(12, 6))
+
+plt.subplot(1, 2, 1)
+sns.histplot(df['Age'], kde=True, bins=20, color='pink')
+plt.title('Histogram of Age')
+plt.xlabel('Age')
+plt.ylabel('Frequency')
+
+plt.subplot(1, 2, 2)
+sns.histplot(df['Fare'], kde=True, bins=20, color='green')
+plt.title('Histogram of Fare')
+plt.xlabel('Fare')
+plt.ylabel('Frequency')
+
+plt.tight_layout()
+plt.show()
+
+(3)
+import pandas as pd
+import numpy as np
+import seaborn as sns  # Fixed typo from 'scaborn' to 'seaborn'
+import matplotlib.pyplot as plt
+
+df = pd.read_csv('/home/student/Downloads/covid.csv')
+df
+
+ax = df.boxplot(column='Age', by='Sex', figsize=(8,4))
+ax.set_ylabel('Age')
+ax.set_title('Boxplot - Age vs Sex')
+
+ax = df.boxplot(column='Smoker', by='Sex', figsize=(8,4))
+ax.set_ylabel('Smoker')
+ax.set_title('Boxplot - Smoker vs Sex')
+
+df2 = pd.read_csv('/home/student/Downloads/Titanic-Dataset.csv')
+df2
+
+ax = df2.boxplot(column='Age', by='Sex', figsize=(8,4))
+ax.set_ylabel('Age')
+ax.set_title('Boxplot - Age vs Sex')
+
+ax = df2.boxplot(column='Survived', by='Sex', figsize=(8,4))
+ax.set_ylabel('Survived')
+ax.set_title('Boxplot - Survived vs Sex')
+
+(4)
+import pandas as pd
+import seaborn as sns  # Fixed typo from 'reasons' to 'seaborn'
+import matplotlib.pyplot as plt
+
+df = sns.load_dataset('iris')
+df
+
+numeric_features = ['sepal_length', 'sepal_width', 'petal_length', 'petal_width']
+for feature in numeric_features:
+    plt.figure(figsize=(8, 6))  
+    sns.histplot(df[feature], bins=20, color='blue')  
+    plt.title(f'Histogram of {feature}')
+    plt.xlabel(feature)
+    plt.ylabel('Frequency') 
+    plt.show()
+
+for feature in numeric_features:
+    plt.figure(figsize=(8, 6))  
+    sns.boxplot(x=df[feature], color='green')  
+    plt.title(f'Boxplot of {feature}')
+    plt.xlabel(feature)
+    plt.show()
+
+
+(5)
+    from sklearn.model_selection import train_test_split
+from sklearn import metrics
+
+
+import pandas as pd
+import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+%matplotlib inline
+import warnings
+warnings.filterwarnings(action = 'ignore')
+
+df = pd.read_csv('housing_data.csv')
+df
+
+names = ['CRIM', 'ZN', 'INDUS', 'CHAS', 'NOX', 'RM', 'AGE', 'DIS', 'RAD','TAX', 'PTRATIO', 'B', 'LSTAT', 'MEDV']
+
+df.head()
+
+df.shape
+
+df.info()
+
+df.isnull().sum()
+
+for feature in names:
+ df[feature].fillna(df[feature].median(), inplace = True)
+df.isnull().sum()
+
+plt.figure(figsize=(12,12))
+ sns.heatmap(data=df.corr().round(2), annot=True, cmap='coolwarm', linewidths=0.2, square=True)
+
+df1= df[['RM','TAX','PTRATIO','LSTAT','MEDV']] 
+df1
+
+sns.pairplot(df1)
+
+d = df1.describe().round(2)
+d
+
+plt.figure(figsize=(20,3))
+plt.subplot(1,2,1)
+sns.boxplot(df1['MEDV'], color='#005030')
+plt.title("BoxPlot Of MEDV")
+plt.subplot(1,2,2)
+sns.distplot(a=df1.MEDV, color='#500050')
+plt.title("Distribution Plot Of MEDV")
+plt.show()
+
+#IQR
+Q3 = d['MEDV']['75%']
+Q1 = d['MEDV']['25%']
+IQR = Q3- Q1
+ub = Q3 + 1.5*IQR
+lb = Q1- 1.5*IQR
+
+df1[df1['MEDV'] > ub]
+
+print(f"Shape of the dataset before removing outlier {df1.shape} ")
+
+df2 = df1[~(df1['MEDV'] == 50)] 
+
+print(f"Shape of the dataset after removing outlier {df2.shape} ")
+
+plt.figure(figsize=(20,3))
+plt.subplot(1,2,1)
+sns.boxplot(df2['MEDV'], color='#005030')
+plt.title("BoxPlot Of MEDV")
+plt.subplot(1,2,2)
+sns.distplot(a=df2.MEDV, color='#500050')
+plt.title("Distribution Plot Of MEDV")
+print("AFTER REMOVING OUTLIERS")
+plt.show()
+
+plt.figure(figsize=(20,3))
+plt.subplot(1,3,1) # 1row, 3 cols, this is 1st col
+sns.boxplot(df2['TAX'], color='#005030')
+plt.title("BoxPlot Of TAX")
+plt.subplot(1,3,2)
+sns.distplot(a=df2.TAX, color='#500050')
+plt.title("Distribution Plot Of TAX")
+plt.subplot(1,3,3)
+sns.scatterplot(x=df2.TAX,y=df2.MEDV)
+plt.title("ScatterPlot Plot Of TAX vs MEDV")
+plt.show()
+
+temp_df = df2[df1['TAX'] > 600].sort_values(['RM', 'MEDV'])
+temp_df
+
+temp_df.shape
+
+temp_df.describe()
+
+tax_10 = df2[(df2['TAX'] < 600) & (df2['LSTAT'] >= 0) & (df2['LSTAT'] < 10)]['TAX'].mean()
+tax_20 = df2[(df2['TAX'] < 600) & (df2['LSTAT'] >= 10) & (df2['LSTAT'] < 20)]['TAX'].mean()
+tax_30 = df2[(df2['TAX'] < 600) & (df2['LSTAT'] >= 20) & (df2['LSTAT'] < 30)]['TAX'].mean()
+tax_40 = df2[(df2['TAX'] < 600) & (df2['LSTAT'] >= 30)]['TAX'].mean()
+indexes = list(df2.index)
+
+for i in indexes:
+ if(0 <= df2['LSTAT'][i] < 10):
+    df2.at[i,'TAX'] = tax_10
+ elif(10 <= df2['LSTAT'][i] < 20):
+    df2.at[i,'TAX'] = tax_20
+ elif(20 <= df2['LSTAT'][i] < 30):
+    df2.at[i,'TAX'] = tax_30
+ elif(30 <= df2['LSTAT'][i] ):
+    df2.at[i,'TAX'] = tax_40
+print("Value imputed successfully.")
+
+df2[df2['TAX'] > 600]['TAX'].count()
+
+sns.distplot(a=df2.TAX, color='#500050')
+plt.title("Distribution Plot Of TAX after replacing extreme values")
+plt.show()
+
+df2.shape
+
+df2.describe()
+
+plt.figure(figsize=(20,3))
+plt.subplot(1,3,1) # 1row, 3 cols, this is 1st col
+sns.boxplot(df2['PTRATIO'], color='#005030')
+plt.title("BoxPlot Of PTRATIO")
+plt.subplot(1,3,2)
+sns.distplot(a=df2.PTRATIO, color='#500050')
+plt.title("Distribution Plot Of PTRATIO")
+plt.subplot(1,3,3)
+sns.scatterplot(x=df2.PTRATIO,y=df2.MEDV)
+plt.title("ScatterPlot Plot Of PTRATIO vs MEDV")
+plt.show()
+
+plt.figure(figsize=(20,3))
+plt.subplot(1,3,1) # 1row, 3 cols, this is 1st col
+sns.boxplot(df2['LSTAT'], color='#005030')
+plt.title("BoxPlot Of LSTAT")
+plt.subplot(1,3,2)
+sns.distplot(a=df2.LSTAT, color='#500050')
+plt.title("Distribution Plot Of LSTAT")
+plt.subplot(1,3,3)
+sns.scatterplot(x=df2.LSTAT,y=df2.MEDV)
+plt.title("ScatterPlot Plot Of LSTAT vs MEDV")
+plt.show()
+
+df2[df2['LSTAT'] > 30].sort_values(by= 'LSTAT')
+
+Q3 = d['LSTAT']['75%']
+Q1 = d['LSTAT']['25%']
+IQR = Q3- Q1
+ub = Q3 + 1.5*IQR
+lb = Q1- 1.5*IQR
+df2[df2['LSTAT'] > ub].sort_values(by= 'LSTAT')
+
+plt.figure(figsize=(20,3))
+plt.subplot(1,3,1) # 1row, 3 cols, this is 1st col
+sns.boxplot(df2['RM'], color='#005030')
+plt.title("BoxPlot Of RM")
+plt.subplot(1,3,2)
+sns.distplot(a=df2.RM, color='#500050')
+plt.title("Distribution Plot Of RM")
+plt.subplot(1,3,3)
+sns.scatterplot(x=df2.RM,y=df2.MEDV)
+plt.title("ScatterPlot Plot Of RM vs MEDV")
+plt.show()
+
+Q3 = d['RM']['75%']
+Q1 = d['RM']['25%']
+IQR = Q3- Q1
+ub = Q3 + 1.5*IQR
+lb = Q1- 1.5*IQR
+df2[df2['RM'] < lb].sort_values(by= ['RM','MEDV'])
+
+print(f"Shape of the dataset before removing outlier {df2.shape} ")
+df3 = df2.drop(axis=0,index =[365,367]) # removing rows with these indices
+print(f"Shape of the dataset after removing outlier {df3.shape} ")
+
+df3[df3['RM'] > ub].sort_values(by= ['RM','MEDV'])
+
+print(f"Shape of the dataset before removing outlier {df3.shape} ")
+
+df3 = df3.drop(axis=0,index = 364) # gadbad in index 364
+print(f"Shape of the dataset after removing outlier {df3.shape} ")
+
+df3[df3['RM'] > ub].sort_values(by= ['RM','MEDV'])
+
+df3
+
+X = df3.iloc[:,0:4].values # REST ALL FOUR HERE
+y = df3.iloc[:,-1:].values # MEDV
+
+print(f"Shape of Dependent Variable X = {X.shape}")
+print(f"Shape of Independent Variable y = {y.shape}")
+
+def FeatureScaling(X):
+ """
+ is function takes an array as an input, which needs to be scaled down.
+ Apply Standardization technique to it and scale down the features with mean = 0 and standard deviation = 1
+ Input <- 2 dimensional numpy array
+ Returns-> Numpy array after applying Feature Scaling
+ """
+ # Z score converting into 0's or 1's form to work on this big range of data
+ mean = np.mean(X,axis=0) # ALL ROWS MEAN
+ std = np.std(X,axis=0)
+ for i in range(X.shape[1]):
+ X[:,i] = (X[:,i]-mean[i])/std[i]
+ return X
+
+X = FeatureScaling(X)
+X
+
+m,n = X.shape 
+X = np.append(arr=np.ones((m,1)),values=X,axis=1)
+X
+
+from sklearn.model_selection import train_test_split
+X_train, X_test, y_train, y_test = train_test_split(X,y,test_size=0.2,random_state = 42)
+print(f"Shape of X_train = {X_train.shape}")
+print(f"Shape of X_test = {X_test.shape}")
+print(f"Shape of y_train = {y_train.shape}")
+print(f"Shape of y_test = {y_test.shape}")
+
+def ComputeCost(X,y,theta):
+ """
+ This function takes three inputs and uses the Cost Function to determine the cost (basically error of prediction vs
+ actual values)
+ Cost Function: Sum of square of error in predicted values divided by numberof data points in the set
+ J = 1/(2*m) * Summation(Square(Predicted values- Actual values))
+ Input <- Take three numpy array X,y and theta
+ Return-> The cost calculated from the Cost Function
+ """
+ m=X.shape[0] #number of data points in the set
+ J = (1/(2*m)) * np.sum((X.dot(theta)- y)**2)
+ return J
+
+def GradientDescent(X,y,theta,alpha,no_of_iters):
+ m=X.shape[0]
+ J_Cost = []
+ for i in range(no_of_iters):
+ error = np.dot(X.transpose(),(X.dot(theta)-y))
+ theta = theta- alpha * (1/m) * error
+ J_Cost.append(ComputeCost(X,y,theta))
+ return theta, np.array(J_Cost)
+
+iters = 1000 # differential equations 1000 times krenge to check
+alpha1 = 0.001
+theta1 = np.zeros((X_train.shape[1],1))
+theta1, J_Costs1 = GradientDescent(X_train,y_train,theta1,alpha1,iters)
+alpha2 = 0.003
+theta2 = np.zeros((X_train.shape[1],1))
+theta2, J_Costs2 = GradientDescent(X_train,y_train,theta2,alpha2,iters)
+alpha3 = 0.01
+theta3 = np.zeros((X_train.shape[1],1))
+theta3, J_Costs3 = GradientDescent(X_train,y_train,theta3,alpha3,iters)
+alpha4 = 0.03
+theta4 = np.zeros((X_train.shape[1],1))
+theta4, J_Costs4 = GradientDescent(X_train,y_train,theta4,alpha4,iters)
+
+plt.figure(figsize=(8,5))
+plt.plot(J_Costs1,label = 'alpha = 0.001')
+plt.plot(J_Costs2,label = 'alpha = 0.003')
+plt.plot(J_Costs3,label = 'alpha = 0.01')
+plt.plot(J_Costs4,label = 'alpha = 0.03')
+plt.title('Convergence of Gradient Descent for different values of alpha')
+plt.xlabel('No. of iterations')
+plt.ylabel('Cost')
+plt.legend()
+plt.show()
+
+theta4
+
+def Predict(X,theta):
+ """
+ This function predicts the result for the unseen data
+ """
+ y_pred = X.dot(theta)
+ return y_pred
+
+y_pred = Predict(X_test,theta4)
+y_pred[:5]
+
+y_pred
+
+plt.scatter(x=y_test,y=y_pred,alpha=0.5)
+plt.xlabel('y_test',size=12)
+plt.ylabel('y_pred',size=12)
+plt.title('Predicited Values vs Original Values (Test Set)',size=15)
+plt.show()
+
+(6)
+
+import pandas as pd
+import numpy as np
+from sklearn.model_selection import train_test_split
+
+df = pd.read_csv('Social_Network_Ads.csv')  
+df
+
+X = df[["Age", "EstimatedSalary"]]
+y = df[["Purchased"]]
+
+X 
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+y_train
+
+from sklearn.linear_model import LogisticRegression
+model = LogisticRegression()
+model.fit(X_train, y_train)
+
+y_test
+
+y_test_predicted = model.predict(X_test)
+y_test_predicted
+
+model.score(X_test,y_test)
+
+from sklearn.metrics import accuracy_score
+accuracy_score(y_test,y_test_predicted)
+
+from sklearn.metrics import confusion_matrix, accuracy_score, precision_score, recall_score, f1_score
+
+confusionMatrix = confusion_matrix(y_test,y_test_predicted)
+print("\nConfusion Matrix \n",confusionMatrix)
+
+accuracy = accuracy_score(y_test,y_test_predicted)
+print("Accuracy : ",accuracy)
+
+precision = precision_score(y_test,y_test_predicted)
+print("Precision : ",precision)
+
+f1_score = f1_score(y_test,y_test_predicted)
+print("F1 Score : ",f1_score)
+
+recall_score = recall_score(y_test,y_test_predicted)
+print("Recall Score : ",recall_score)
+
+(7)
+import pandas as pd
+import numpy as np
+import seaborn as sns
+from sklearn.linear_model import LogisticRegression
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import confusion_matrix, accuracy_score, precision_score, recall_score, f1_score
+
+iris_data = sns.load_dataset('iris')
+iris_data
+
+iris_data.head()
+
+iris_data['species'] = iris_data['species'].map({'setosa' : 0,'versicolor': 1,'virginica' : 2})
+
+print("Class Distribution : ")
+print(iris_data['species'].value_counts())
+
+p0 = 50/150
+p1 = 50/150
+p2 = 50/150
+print(p0)
+print(p1)
+print(p2)
+
+print(f"P(Class 0 - setosa): {p0}")
+print(f"P(Class 1 - versicolor): {p1:.2f}")
+print(f"P(Class 0 - virginica): {p2:.2f}")
+
+X = iris_data.iloc[:, :-1]
+y = iris_data.iloc[:, -1]
+
+X_train,X_test,y_train,y_test = train_test_split(X,y,test_size = 0.2,random_state = 42)
+
+model = LogisticRegression(multi_class = 'multinomial',solver = 'lbfgs', max_iter = 200)
+model.fit(X_train,y_train)
+
+y_pred = model.predict(X_test)
+
+conf_matrix = confusion_matrix(y_test,y_pred)
+print("\nConfusion Matrix : ")
+print(conf_matrix)
+
+TP = np.diag(conf_matrix)
+FP = conf_matrix.sum(axis = 0) - TP
+FN = conf_matrix.sum(axis = 1) - TP
+TN = conf_matrix.sum() - (FP + FN + TP)
+
+accuracy = accuracy_score(y_test,y_pred)
+error_rate = 1 - accuracy
+precision = precision_score(y_test,y_pred,average = 'macro')
+recall = recall_score(y_test,y_pred,average = 'macro')
+
+
+print(f"Accuracy: {accuracy:.2f}")
+print(f"Error Rate: {error_rate:.2f}")
+print(f"Precision: {precision:.2f}")
+print(f"Recall: {recall:.2f}")
+print(f"True Positives: {TP}")
+print(f"False Positives: {FP}")
+print(f"False Negatives: {FN}")
+print(f"True Negatives: {TN}")
+
+(8)
+#Part 1
+
+import pandas as pd
+import numpy as np
+
+df = pd.read_csv("/home/student/Downloads/Bengaluru_House_Data (1).csv")
+df
+
+df.head()
+
+df.isnull().sum()
+
+df.isnull().sum().sum()
+
+df1 = df.fillna(value=0)
+df1
+
+df1.isnull().sum().sum()
+
+df2 = df.fillna(method='pad')
+df2
+
+df2.isnull().sum().sum()
+
+df3 = df.fillna(method='bfill')
+df3
+
+df3.isnull().sum().sum()
+
+df4 = df.fillna(method='pad', axis=1)
+df4
+
+df4.isnull().sum().sum()
+
+df5 = df.fillna(method='bfill', axis=1)
+df5
+
+
+df6 = df.fillna({'society': 'abcd', 'balcony': 'defg'})
+df6
+
+df7 = df.fillna(value=df['balcony'].mean())
+df7
+
+df8 = df.fillna(value=df['balcony'].max())
+df8
+
+df9 = df.fillna(value=df['balcony'].min())
+df9
+
+df10 = df.dropna()
+df10
+
+df.shape
+
+df11 = df.dropna(how='all')
+df11
+
+df12 = df.dropna(how='any')
+df12
+
+df13 = df.dropna(how='any', axis=1)
+df13
+
+df14 = df.replace(to_replace=np.nan, value=87546)
+df14
+
+df14.isnull().sum().sum()
+
+#Part 2
+
+import numpy as np
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split
+
+
+df = pd.read_csv("E:\HDD DOMNLOADS\Wine dataset.csv")
+df
+
+df_columns = ['class', 'Alcohol', 'Malic acid']
+df_columns
+
+sns.kdeplot(df['Alcohol'])
+
+sns.kdeplot(df['Malic acid'])
+
+sns.kdeplot(df['class'])
+
+color_dict = {1:'red', 2:'blue', 3:'green'}
+sns.scatterplot(df['Alcohol'], palette=color_dict)
+
+X_train, X_test, Y_train, Y_test = train_test_split(df.drop(['class'], axis=1), df['class'], test_size=0.3, random_state=42)
+
+X_train
+
+X_test
+
+Y_train
+
+Y_test
+
+X_train.shape
+
+X_test.shape
+
+from sklearn.preprocessing import MinMaxScaler
+scaler = MinMaxScaler()
+scaler.fit(X_train)
+
+X_train_scaled = scaler.transform(X_train)
+X_test_scaled = scaler.transform(X_test)
+
+X_train_scaled = pd.DataFrame(X_train_scaled, columns=X_train.columns)
+X_train_scaled
+
+X_test_scaled = pd.DataFrame(X_test_scaled, columns=X_test.columns)
+X_test_scaled
+
+np.round(X_train.describe(), 1)
+
+fig, (ax1, ax2) = plt.subplots(ncols=2, figsize=(12,5))
+ax1.scatter(X_train['Alcohol'], X_train['Malic acid'], c=Y_train)
+ax1.set_title("Before Scaling")
+ax2.scatter(X_train_scaled['Alcohol'], X_train_scaled['Malic acid'], c=Y_train)
+ax2.set_title("After Scaling")
+plt.show()
+
+fig, (ax1, ax2) = plt.subplots(ncols=2, figsize=(12,5))
+ax1.set_title("Before Scaling")
+sns.kdeplot(X_train['Alcohol'], ax=ax1)
+sns.kdeplot(X_train['Malic acid'], ax=ax1)
+ax2.set_title("After Scaling")
+sns.kdeplot(X_train_scaled['Alcohol'], ax=ax2)
+sns.kdeplot(X_train_scaled['Malic acid'], ax=ax2)
+plt.show()
+
+from sklearn.preprocessing import OneHotEncoder
+
+encoder = OneHotEncoder(sparse=False)
+Y_train_encoded = encoder.fit_transform(Y_train.to_numpy().reshape(-1, 1))
+Y_test_encoded = encoder.transform(Y_test.to_numpy().reshape(-1, 1))
+
+Y_train_encoded_df = pd.DataFrame(Y_train_encoded, columns=encoder.get_feature_names_out(['class']))
+Y_test_encoded_df = pd.DataFrame(Y_test_encoded, columns=encoder.get_feature_names_out(['class']))
+
+print(Y_train_encoded_df.head())
+print(Y_test_encoded_df.head())
+
+(9)
+
+import warnings
+warnings.simplefilter(action='ignore', category=FutureWarning)
+
+import pandas as pd
+import numpy as np
+
+data = pd.read_csv(r"C:\Users\abhin\OneDrive\Documents\Work\A2.csv")
+df = pd.DataFrame(data)
+df
+
+df.isnull().sum()
+
+df.info()
+
+df.describe()
+
+df1 = df.copy()
+df1.fillna(0, inplace=True)
+df1
+
+df2 = df.copy()
+df2 = df2.ffill()
+df2
+
+df3 = df.copy()
+df3 = df3.bfill()
+df3
+
+df4 = df.copy()
+df4["Subject 4"].fillna(85, inplace=True)
+df4
+
+df5 = df.copy()
+df5["Subject 3"].fillna(df5["Subject 3"].mean(), inplace=True)
+df5["Subject 4"].fillna(df5["Subject 4"].mean(), inplace=True)
+df5
+
+df6 = df.copy()
+nc = ['Subject 1', 'Subject 2', 'Subject 3', 'Subject 4', 'Attendance']
+for c in nc:
+    df6[c].fillna(df6[c].mean(), inplace=True)
+df6
+
+df7 = df.copy()
+for c in nc:
+    df7[c].fillna(df7[c].median(), inplace=True)
+df7
+
+df7 = df.copy()
+for c in nc:
+    df7[c].fillna(df7[c].mode()[0], inplace=True)
+df7
+
+df7 = df.copy()
+df7.replace(to_replace=np.nan, value=85)
+
+df7 = df.copy()
+df7.interpolate(method='linear', limit_direction='forward')
+
+df7 = df.copy()
+df7.dropna()
+
+df7 = df.copy()
+df7.dropna(how='all', inplace=True)
+df7
+
+df7 = df.copy()
+df7.dropna(axis=1)
+
+df7 = df.copy()
+df7.dropna(axis=0, how='any')
+
+df7 = df.copy()
+print("Inconsistencies:\n", df7[df7[['Subject 1', 'Subject 2', 'Subject 3', 'Subject 4', 'Attendance']] < 0])
+
+df7[['Subject 3', 'Subject 4', 'Attendance']] = df7[['Subject 3', 'Subject 4', 'Attendance']].clip(lower=0)
+df7
+
+df7 = df.copy()
+df7.drop_duplicates(inplace=True)
+df7
+
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+df7 = df.copy()
+nc = ['Subject 1', 'Subject 2', 'Subject 3', 'Subject 4', 'Attendance']
+for c in nc:
+    sns.boxplot(x=df7[c])
+    plt.title(f'BoxPlot of {c}')
+    plt.show()
+
+df7 = df.copy()
+for c in nc:
+    Q1 = df7[c].quantile(0.25)
+    Q3 = df7[c].quantile(0.75)
+    IQR = Q3 - Q1
+    
+    lower_bound = Q1 - 1.5 * IQR
+    upper_bound = Q3 + 1.5 * IQR
+    
+    df7[c] = np.where((df7[c] < lower_bound) | (df7[c] > upper_bound), df7[c].median(), df7[c])
+df7
+
+df7 = df.copy()
+from scipy import stats
+z = np.abs(stats.zscore(df7['Subject 1']))
+z
+
+threshold = 1
+print(np.where(z > 1))
+
+df7['log_Attendance'] = np.log1p(df7['Attendance'])
+df7
+
+df7 = df.copy()
+for c in nc:
+    print('column:', c, 'Skew:', df7[c].skew(skipna=True))
+
+from scipy.stats import norm
+for c in nc:
+    data = df7[c]
+    
+    mean = data.mean()
+    sd = data.std()
+    
+    x_axis = np.linspace(data.min(), data.max(), 100)
+    y_axis = norm.pdf(x_axis, mean, sd)
+    
+    plt.plot(x_axis, y_axis, label=f'{c} Normal Distribution')
+    
+plt.legend()
+plt.show()
+
+for c in nc:
+    sns.histplot(df[c], kde=True)
+    plt.title(f'Distribution of {c}')
+    plt.show()
+
+(10)
+
+import pandas as pd
+import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+data = pd.read_csv('data.csv')
+data
+
+data.info()
+
+data.describe()
+
+data['age'].min()
+
+data['age'].max()
+
+data['age'].mean()
+
+data['age'].median()
+
+data['age'].std()
+
+data.income.nunique()
+
+data.groupby(['income','age']).count()
+
+data.groupby(['income','age']).min()
+
+data.groupby(['income','age']).max()
+
+data.groupby('income')['age'].mean()
+
+data.groupby('income')['age'].median()
+
+data.groupby('income')['age'].std()
+
+data.groupby('income')['age'].min()
+
+data.groupby('income')['age'].max()
+
+iris_data = sns.load_dataset('iris')
+iris_data
+
+iris_data.describe()
+
+setosa_data= iris_data[iris_data['species']== 'setosa']
+print('\n\t\t----------SetosaData----------\n\n',setosa_data)
+versicolor_data= iris_data[iris_data['species']== 'versicolor']
+print('\n\t\t----------VersicolorData----------\n\n',versicolor_data)
+virginica_data= iris_data[iris_data['species'] == 'virginica']
+print('\n\t\t----------VirginicaData----------\n\n',virginica_data)
+
+setosa_data.describe()
+
+versicolor_data.describe()
+
+virginica_data.describe()
+
+def display_stats(species_data, species_name):
+ nc = ['sepal_length', 'sepal_width', 'petal_length', 'petal_width']
+ print(f"\n\n------------Statistics for {species_name}----------- : \n ")
+ print(f"------Mean------ \n: {species_data[nc].mean()}")
+ print(f"\n-----Standard Deviation:----- \n{species_data[nc].std()}")
+ print(f"\n-----25th Percentile :----- \n{species_data[nc].quantile(0.25)}")
+ print(f"\n-----50th Percentile :----- \n{species_data[nc].quantile(0.5)}")
+ print(f"\n-----75th Percentile :----- \n{species_data[nc].quantile(0.75)}")
+display_stats(setosa_data, 'setosa')
+display_stats(versicolor_data, 'versicolor')
+display_stats(virginica_data, 'virginica')
+
+setosa_data
+
+def calculate_mean(data):
+ if len(data) == 0:
+    return None
+ return sum(data) / len(data)
+
+def calculate_std(data,mean):
+ if len(data) <= 1:
+    return None
+ squared_diff = sum((value-mean)**2 for value in data)
+ return (squared_diff / len(data)) ** 0.5
+
+def calculate_percentile(data,percentile):
+ sorted_data = sorted(data)
+ index = int((percentile/100) * len(data) )
+ return sorted_data[index]
+
+def display_statistics(species_data, species_name):
+ 16
+columnList= ["sepal_length","sepal_width","petal_length","petal_width"] #Features List
+ print(f"\n---------Feature-WiseStatisticsfor{species_name}----------")
+ for col in columnList:
+    feature_data =species_data[col]
+    mean_value= calculate_mean(feature_data)
+    std_value =calculate_std(feature_data,mean_value)
+    percentile_25 = calculate_percentile(feature_data,25)
+    percentile_50 = calculate_percentile(feature_data,50) #Median
+    percentile_75 = calculate_percentile(feature_data,75)
+ 
+    print(f"\nFeature:{col}")
+    print(f" Mean:{mean_value}")
+    print(f" StandardDeviation: {std_value}")
+    print(f" 25thPercentile: {percentile_25}")
+    print(f" 50thPercentile(Median): {percentile_50}")
+    print(f" 75thPercentile: {percentile_75}")
+
+setosa_data= iris_data[iris_data['species']== 'setosa']
+versicolor_data= iris_data[iris_data['species']== 'versicolor']
+virginica_data= iris_data[iris_data['species'] == 'virginica']
+display_statistics(setosa_data, 'Iris-Setosa')
+display_statistics(versicolor_data, 'Iris-Versicolor')
+display_statistics(virginica_data, 'Iris-Virginica')
+
+(11)
+Apache Spark - Scala Weblog
+
+Steps & Code
+
+1.Check if DSBDAL Directory exists
+
+2.Create the DSBDAL Directory if it doesnt exist and paste the extracted spark-3.5.5-bin-hadoop3 file there
+  
+  Also paste the weblog.csv file inside the DSDBAL Directory
+
+3.open terminal
+
+4.Go to cd DSBDAL
+
+5.Type spark-shell to open spark terminal
+
+6.Pray to god that this practical doesnt come and if it does, paste the below code
+
+(Also dont forget to change the path accordingly to /home/student/DSBDAL/weblog.csv, wherever needed)
+
+import org.apache.log4j.{Logger, Level}
+Logger.getLogger("org").setLevel(Level.OFF)
+
+import org.apache.spark.sql.{Column, SparkSession}
+import org.apache.spark.sql.functions.{regexp_extract,sum,col,to_date,udf,to_timestamp,desc,dayofyear,year}
+
+val spark = SparkSession.builder().appName("WebLog").master("local[*]").getOrCreate()
+val base_df = spark.read.text("/home/abhi/DSBDAL/weblog.csv")
+base_df.printSchema()
+
+import spark.implicits._
+val base_df = spark.read.text("/home/abhi/DSBDAL/weblog.csv")
+base_df.printSchema()
+base_df.show(3,false)
+
+val parsed_df = base_df.select(regexp_extract($"value","""^([^(\s|,)]+)""",1).alias("host"),
+    regexp_extract($"value","""^.*\[(\d\d/\w{3}/\d{4}:\d{2}:\d{2}:\d{2})""",1).as("timestamp"),
+    regexp_extract($"value","""^.*\w+\s+([^\s]+)\s+HTTP.*""",1).as("path"),
+    regexp_extract($"value","""^.*,([^\s]+)$""",1).cast("int").alias("status"))
+parsed_df.show(5,false)
+parsed_df.printSchema()
+
+println("Number of bad row in the initial dataset : " + base_df.filter($"value".isNull).count())
+
+val bad_rows_df = parsed_df.filter($"host".isNull || $"timestamp".isNull || $"path".isNull || $"status".isNull)
+println("Number of bad rows : " + bad_rows_df.count())
+
+def count_null(col_name: Column): Column = sum(col_name.isNull.cast("int")).alias(col_name.toString())
+val t = parsed_df.columns.map(col_name => count_null(col(col_name)))
+parsed_df.select(t: _*).show()
+
+val bad_status_df = base_df.select(regexp_extract($"value","""([^\d]+)$""",1).as("bad_status")).filter($"bad_status".notEqual(""))
+println("Number of bad rows : " + bad_status_df.count())
+bad_status_df.show(5)
+
+val cleaned_df = parsed_df.na.drop()
+
+println("The count of null value : " + cleaned_df.filter($"host".isNull || $"timestamp".isNull || $"path".isNull|| $"status".isNull).count())
+println("Before : " + parsed_df.count() + " | After : " + cleaned_df.count())
+
+cleaned_df.select(to_date($"timestamp")).show(2)
+
+val month_map = Map("Jan" -> 1, "Feb" -> 2, "Mar" -> 3, "Apr" -> 4, "May" -> 5, "Jun" -> 6, "Jul" -> 7, "Aug" -> 8
+, "Sep" -> 9, "Oct" -> 10, "Nov" -> 11, "Dec" -> 12)
+def parse_clf_time(s: String) ={
+"%3$s-%2$s-%1$s %4$s:%5$s:%6$s".format(s.substring(0,2),month_map(s.substring(3,6)),s.substring(7,11)
+,s.substring(12,14),s.substring(15,17),s.substring(18))
+}
+val toTimestamp = udf[String, String](parse_clf_time(_))
+val logs_df = cleaned_df.select($"*",to_timestamp(toTimestamp($"timestamp")).alias("time")).drop("timestamp")
+logs_df.printSchema()
+logs_df.show(2)
+logs_df.cache()
+
+logs_df.describe("status").show()
+
+logs_df.groupBy("status").count().sort("status").show()
+
+logs_df.groupBy("host").count().filter($"count" > 10).show()
+
+logs_df.groupBy("path").count().sort(desc("count")).show()
+
+logs_df.groupBy("path").count().sort(desc("count")).show(10)
+
+logs_df.filter($"status" =!= 200).groupBy("path").count().sort(desc("count")).show(10)
+
+val unique_host_count = logs_df.select("host").distinct().count()
+println("Unique hosts : %d".format(unique_host_count))
+
+val daily_hosts_df = logs_df.withColumn("day",dayofyear($"time")).withColumn("year",year($"time")).select("host","day","year").distinct().groupBy("day","year").count().sort("year","day").cache()
+daily_hosts_df.show(5)
+
+val total_req_per_day_df = logs_df.withColumn("day", dayofyear($"time")).withColumn("year", year($"time")).groupBy("day", "year").count()
+val avg_daily_request_per_host_df = total_req_per_day_df.join(daily_hosts_df,total_req_per_day_df("day") === daily_hosts_df("day")&& total_req_per_day_df("year") === daily_hosts_df("year")).select(daily_hosts_df("day"),daily_hosts_df("year"),(total_req_per_day_df("count") /daily_hosts_df("count")).alias("avg_req_per_host_per_day")).cache()
+avg_daily_request_per_host_df.show(5)
+
+val not_found_df = logs_df.where($"status" === 404).cache()
+println("found %d 404 Urls".format(not_found_df.count()))
+
+not_found_df.select("path").distinct().show(40,false)
+
+not_found_df.groupBy("path").count().sort("count").show(20,false)
+not_found_df.groupBy("path").agg("host" -> "collect_list","status" -> "count").sort("count(status)").show(20)
+not_found_df.groupBy("path").agg("host" -> "collect_set","status" -> "count").sort("count(status)").show(20)
+
+not_found_df.groupBy("host").count().sort(desc("count")).show(truncate = false)
+
+val errors_by_date_pair_df = not_found_df.withColumn("day", dayofyear($"time")).withColumn("year", year($"time")).groupBy("day","year").count() 
+not_found_df.withColumn("day", dayofyear($"time")).withColumn("year", year($"time")).groupBy("day","year").count().sort($"year",$"day").show(10)
+
+(12)
+Apache Spark - Scala Word Count 
+
+Steps & Code
+
+1. Open terminal
+
+2. echo $SHELL - Checks for bash
+
+3. Create DSBDAL directory (folder) in Home
+
+4. Copy and paste the spark-3.5.5-bin-hadoop3 file in DSBDAL directory
+
+5. Extract the file in that directory (the contents of the zip file should be extracted in the DSBDAL directory)
+
+-Optional Steps 5(A) and 5(B) to be skipped . Only visit them if any error occurs regarding java path or directory errors
+
+5.5 (A) If in case that is not working (wont happen most likely) , try this :
+	
+	mkdir -p DSBDAL1
+    tar -xvzf ~/spark-3.5.5-bin-hadoop3.tgz -C ~/DSBDAL1
+5.5 (B) Check if java is installed 
+		
+			java -version
+
+		It most likely will be installed but if JAVA_HOME error occurs 
+
+			nano ~/.bashrc
+
+		Scroll to the bottom with arrow down key
+
+		Paste these two lines at the bottom
+
+			export JAVA_HOME="/usr/lib/jvm/java-17-openjdk-amd64"
+			export PATH="$JAVA_HOME/bin:$PATH" 
+
+		CTRL + S (to save),CTRL + X(to exit) which will bring us back to terminal
+
+		If you dont know where the path of Java is 
+		We can use to find what the path is of the java version using 
+
+			readlink -f $(which java)
+
+		It will return something like /usr/lib/jvm/java-17-openjdk-amd64, paste this inside double quotes at the first line after export JAVA_HOME= 
+
+6. After extracting the file in DSBDAL Directory
+	
+	nano ~/.bashrc
+
+7. Scroll down to the bottom and put this line 
+	
+	export PATH = "$/home/student/DSBDAL/spark-3.5.5-bin-hadoop3/bin:$PATH"
+
+	CTRL + S (to save),CTRL + X(to exit) which will bring us back to terminal
+
+8. Move to DSBDAL Directory in terminal using cd DSBDAL (or cd ~/DSBDAL if previous doesnt work)
+
+9. Create input file 
+	
+	Type this command
+
+		nano wordinput.txt
+
+	This opens nano GUI, type any paragraph line by line. Sample given below
+
+		Apache Spark is an open-source unified analytics engine for big data processing, with built-in modules for streaming, SQL, machine learning, and graph processing.
+		It provides an easy-to-use interface for processing large datasets in a distributed computing environment. 
+		Spark can handle both batch and real-time data processing workloads and is known for its high performance, making it a popular choice for big data applications.
+
+	CTRL + S (to save),CTRL + X(to exit) which will bring us back to terminal
+
+10. Open Spark Shell using 
+	
+	spark-shell
+
+11. Type the following code line by line
+	
+	val inputfile = sc.textFile("/home/student/DSBDAL/wordinput.txt")
+	val counts = inputfile.flatMap(line => line.split(" ")).map(word => (word, 1)).reduceByKey(_+_);
+	counts.toDebugString
+	counts.cache()
+	counts.saveAsTextFile("output")
+
+	If the second line gives error file does not exist, check the file path inside the double quotes and put the correct one
+
+	If it still doesnt work try this val inputfile = sc.textFile("file:///home/student/DSBDAL/wordcount_input.txt")
+
+12. The program is compiled and output has been generated till now
+
+13. To see the output , put the following commands line by line 
+
+	cd DSBDAL/output
+	ls -1
+
+	This will give output as
+
+		_SUCCESS
+		part-00000
+		part-00001
+
+	To view both parts, put the following commands
+
+	cat part-00000
+
+	(This gives part one of the output)
+
+	cat part-00001
+
+	(This gives the second part)
+
+14. There is a second method to run the code - By creating a wordcount.scala file after step 9
+
+	Stay at DSBDAL Directory in terminal
+
+	Type nano wordcount.scala
+
+	Opens the Scala GUI
+
+	Type the code
+
+		val inputfile = sc.textFile("/home/student/DSBDAL/wordinput.txt")
+		val counts = inputfile.flatMap(line => line.split(" ")).map(word => (word,1)).reduceByKey(_+_)
+		counts.toDebugString
+		counts.cache()
+		counts.saveAsTextFile("output")
+
+	CTRL + S (to save),CTRL + X(to exit) which will bring us back to terminal
+
+	Then type scala-spark < wordcount.scala
+
+	This will compile the code and generate output
+
+	To view the output , proceed like step 13
+
+(13)
+Hadoop - Word Count
+
+Steps & Code
+
+1.Open terminal student@student:
+
+  Put su -hadoop
+	
+  Enter password : student
+
+  We are in hadoop now
+
+2.cd hadoop
+  
+  hadoop ka hadoop folder
+
+  This folder is located in Files -> Other -> Computer -> hadoop(Search for it in the search bar)->(If asked for password put student) -> hadoop 
+
+  The path should look like Administrator Root / home / hadoop / hadoop 
+
+  Here the txt file will be created
+
+  should look like hadoop@student:~/hadoop$ in terminal
+
+3.nano abhi.txt
+
+  This opens the nano GUI 
+
+  Put words here
+
+  For example abhi diu abhi diu abhi abhi diu
+
+  This file contents will be counted 
+
+  So final output will be abhi 4 diu 3 at the end
+
+  CTRL + S (to save),CTRL + X(to exit) which will bring us back to terminal
+
+  File will be created at the location we saw above in step 2
+
+4.start-all.sh
+
+  This will start hadoop
+
+5.Open a second terminal and put ifconfig
+
+  Copy the IP Address from there . It will be infront of inet
+
+  It will be something like 10.11.5.30, copy it.
+
+6.Open a web browser
+
+  Paste the IP address and add :9870 infront of it
+
+  It will look something like 10.11.5.30:9870
+
+  Run it and it will open HDFS
+
+7.Top right of the start menu will have Utilities
+  
+  Click it , it will give a drop down menu where we click Browse the file system
+
+  Here we will be seeing a file system and in this system we will create a directory
+
+8.In the hadoop terminal , put this command
+
+  hdfs dfs -mkdir/testabhi
+
+  This directory will be created in HDFS File system we saw in step 7
+
+9.Put this command next
+
+  hdfs dfs -put admin:///home/hadoop/hadoop/abhi.txt /testabhi
+
+  or this one if that doesnt work
+
+  hdfs dfs -put /home/hadoop/hadoop/abhi.txt /testabhi
+
+  This will create the abhi.txt file inside the testabhi directory (abhi.txt wasnt there in testabhi directory earlier in step 8)
+
+10.Now we will write the codes for three files - Mapper,Reducer,Runner
+
+  (A) - For Mapper
+
+  		nano WC_Mapper.java
+
+  		Opens the nano GUI 
+
+  		Paste this code there
+
+  		    package com.javatpoint;  
+      
+		    import java.io.IOException;    
+		    import java.util.StringTokenizer;    
+		    import org.apache.hadoop.io.IntWritable;    
+		    import org.apache.hadoop.io.LongWritable;    
+		    import org.apache.hadoop.io.Text;    
+		    import org.apache.hadoop.mapred.MapReduceBase;    
+		    import org.apache.hadoop.mapred.Mapper;    
+		    import org.apache.hadoop.mapred.OutputCollector;    
+		    import org.apache.hadoop.mapred.Reporter;    
+		    
+		    public class WC_Mapper extends MapReduceBase implements Mapper<LongWritable,Text,Text,IntWritable>{    
+		        private final static IntWritable one = new IntWritable(1);    
+		        private Text word = new Text();    
+		        
+		        public void map(LongWritable key, Text value,OutputCollector<Text,IntWritable> output,     
+		        Reporter reporter) throws IOException{    
+		            
+		            String line = value.toString();    
+		            StringTokenizer  tokenizer = new StringTokenizer(line);    
+		            while (tokenizer.hasMoreTokens()){    
+		                word.set(tokenizer.nextToken());    
+		                output.collect(word, one);    
+		            }    
+		        }    
+		    }
+
+		 CTRL + S (to save),CTRL + X(to exit) which will bring us back to terminal
+
+	(B) - For Reducer
+
+		  nano WC_Reducer.java
+
+		  Opens the nano GUI
+
+		  Paste this code there
+
+		    package com.javatpoint;  
+	        
+	        import java.io.IOException;    
+	        import java.util.Iterator;    
+	        import org.apache.hadoop.io.IntWritable;    
+	        import org.apache.hadoop.io.Text;    
+	        import org.apache.hadoop.mapred.MapReduceBase;    
+	        import org.apache.hadoop.mapred.OutputCollector;    
+	        import org.apache.hadoop.mapred.Reducer;    
+	        import org.apache.hadoop.mapred.Reporter;    
+	            
+	        public class WC_Reducer  extends MapReduceBase implements Reducer<Text,IntWritable,Text,IntWritable> {    
+	        	public void reduce(Text key, Iterator<IntWritable> values,OutputCollector<Text,IntWritable> output,    
+	         	Reporter reporter) throws IOException {    
+	        			int sum=0;    
+	        			
+	        			while (values.hasNext()) {    
+	        				sum+=values.next().get();    
+	        			}    
+	        			
+	        			output.collect(key,new IntWritable(sum));    
+	        	}    
+	        }
+
+	        CTRL + S (to save),CTRL + X(to exit) which will bring us back to terminal
+
+	(C) - For Runner
+
+		  nano WC_Runner.java
+
+		  Opens the nano GUI
+
+		  Paste this code there
+
+		    package com.javatpoint;  
+      
+	        import java.io.IOException;    
+	        import org.apache.hadoop.fs.Path;    
+	        import org.apache.hadoop.io.IntWritable;    
+	        import org.apache.hadoop.io.Text;    
+	        import org.apache.hadoop.mapred.FileInputFormat;    
+	        import org.apache.hadoop.mapred.FileOutputFormat;    
+	        import org.apache.hadoop.mapred.JobClient;    
+	        import org.apache.hadoop.mapred.JobConf;    
+	        import org.apache.hadoop.mapred.TextInputFormat;    
+	        import org.apache.hadoop.mapred.TextOutputFormat;    
+	        
+	        public class WC_Runner {    
+	            public static void main(String[] args) throws IOException{    
+	                JobConf conf = new JobConf(WC_Runner.class);    
+	                
+	                conf.setJobName("WordCount");    
+	                conf.setOutputKeyClass(Text.class);    
+	                conf.setOutputValueClass(IntWritable.class);            
+	                conf.setMapperClass(WC_Mapper.class);    
+	                conf.setCombinerClass(WC_Reducer.class);    
+	                conf.setReducerClass(WC_Reducer.class);         
+	                conf.setInputFormat(TextInputFormat.class);    
+	                conf.setOutputFormat(TextOutputFormat.class);           
+	                
+	                FileInputFormat.setInputPaths(conf,new Path(args[0]));    
+	                FileOutputFormat.setOutputPath(conf,new Path(args[1]));     
+	                
+	                JobClient.runJob(conf);    
+	            }    
+	        }  	   
+
+11.We have written all the code . Now to compile it , use the following command in hadoop terminal
+
+   javac -classpath "$(hadoop classpath)" -d . WC_Mapper.java WC_Reducer.java WC_Runner.java
+
+   Running this command in terminal will generate the class files.
+
+   These will be located inside hadoop folder of hadoop at 
+
+   com -> (Put password student) -> javatpoint -> Class files will be here (WC_Mapper.class,WC_Reducer.class,WC_Runner.class)
+
+12.Next we create a jar file
+   
+   Put this command
+
+   jar -cvf wordcount.jar com
+
+   adds this jar file in hadoop
+
+13.Now we create the output folder in the browser
+
+   Put the following command in terminal 
+
+   hadoop jar /home/hadoop/hadoop/wordcount.jar com.javatpoint.WC_Runner /testabhi/abhi.txt /r_outputabhi
+
+   (here long compilation will be seen , dont worry )
+
+   This will create r_outputabhi directory(folder) in the HDFS file system on browser which will contain our output
+
+14.To see the output, put the following command
+
+   hdfs dfs -cat /r_outputabhi/part-00000
+
+   Running this will show 
+   abhi 4
+   diu 3
+
+   which matches with what we put in the abhi.txt earlier in step 3 
+
+   This completes the hadoop practical
