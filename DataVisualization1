@@ -1,0 +1,67 @@
+import pandas as pd
+import numpy as np
+import warnings
+warnings.filterwarnings('ignore')
+df = pd.read_csv('/home/student/Downloads/Titanic-Dataset.csv')
+df
+
+df.head()
+
+df.shape
+
+df.get
+
+df.sample(891)
+
+df.isnull().sum()
+
+print(df.drop(['Cabin'], axis=1, inplace=True, errors='ignore'))  
+
+df["Age"].fillna(df["Age"].mean(), inplace=True)  
+
+print(df["Embarked"].fillna("S", inplace=True))  
+df.isnull().sum()
+
+df.describe()
+
+import seaborn as sns
+df["Survived"].value_counts()
+
+sns.countplot(x="Survived", data=df)
+
+sns.countplot(x="Sex",hue = "Survived",data = df)
+
+sns.countplot(x="Pclass",hue = "Survived", data=df)
+
+sns.countplot(x="Embarked",hue = "Survived", data=df)
+
+sns.countplot(x="Parch",hue = "Survived", data=df)
+
+sns.countplot(x="SibSp",hue = "Survived", data=df)
+
+sns.countplot(x="Age", hue="Survived", data=df)
+
+sns.countplot(x="Ticket", hue="Survived", data=df)
+
+sns.countplot(x="Fare", hue="Survived", data=df)
+
+sns.countplot(x="PassengerId", hue="Survived", data=df)
+
+
+import matplotlib.pyplot as plt
+plt.figure(figsize=(12, 6))
+
+plt.subplot(1, 2, 1)
+sns.histplot(df['Age'], kde=True, bins=20, color='pink')
+plt.title('Histogram of Age')
+plt.xlabel('Age')
+plt.ylabel('Frequency')
+
+plt.subplot(1, 2, 2)
+sns.histplot(df['Fare'], kde=True, bins=20, color='green')
+plt.title('Histogram of Fare')
+plt.xlabel('Fare')
+plt.ylabel('Frequency')
+
+plt.tight_layout()
+plt.show()
