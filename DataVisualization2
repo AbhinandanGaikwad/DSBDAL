@@ -1,0 +1,26 @@
+import pandas as pd
+import numpy as np
+import seaborn as sns  # Fixed typo from 'scaborn' to 'seaborn'
+import matplotlib.pyplot as plt
+
+df = pd.read_csv('/home/student/Downloads/covid.csv')
+df
+
+ax = df.boxplot(column='Age', by='Sex', figsize=(8,4))
+ax.set_ylabel('Age')
+ax.set_title('Boxplot - Age vs Sex')
+
+ax = df.boxplot(column='Smoker', by='Sex', figsize=(8,4))
+ax.set_ylabel('Smoker')
+ax.set_title('Boxplot - Smoker vs Sex')
+
+df2 = pd.read_csv('/home/student/Downloads/Titanic-Dataset.csv')
+df2
+
+ax = df2.boxplot(column='Age', by='Sex', figsize=(8,4))
+ax.set_ylabel('Age')
+ax.set_title('Boxplot - Age vs Sex')
+
+ax = df2.boxplot(column='Survived', by='Sex', figsize=(8,4))
+ax.set_ylabel('Survived')
+ax.set_title('Boxplot - Survived vs Sex')
