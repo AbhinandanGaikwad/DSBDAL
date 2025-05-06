@@ -1,0 +1,138 @@
+import warnings
+warnings.simplefilter(action='ignore', category=FutureWarning)
+
+import pandas as pd
+import numpy as np
+
+data = pd.read_csv(r"C:\Users\abhin\OneDrive\Documents\Work\A2.csv")
+df = pd.DataFrame(data)
+df
+
+df.isnull().sum()
+
+df.info()
+
+df.describe()
+
+df1 = df.copy()
+df1.fillna(0, inplace=True)
+df1
+
+df2 = df.copy()
+df2 = df2.ffill()
+df2
+
+df3 = df.copy()
+df3 = df3.bfill()
+df3
+
+df4 = df.copy()
+df4["Subject 4"].fillna(85, inplace=True)
+df4
+
+df5 = df.copy()
+df5["Subject 3"].fillna(df5["Subject 3"].mean(), inplace=True)
+df5["Subject 4"].fillna(df5["Subject 4"].mean(), inplace=True)
+df5
+
+df6 = df.copy()
+nc = ['Subject 1', 'Subject 2', 'Subject 3', 'Subject 4', 'Attendance']
+for c in nc:
+    df6[c].fillna(df6[c].mean(), inplace=True)
+df6
+
+df7 = df.copy()
+for c in nc:
+    df7[c].fillna(df7[c].median(), inplace=True)
+df7
+
+df7 = df.copy()
+for c in nc:
+    df7[c].fillna(df7[c].mode()[0], inplace=True)
+df7
+
+df7 = df.copy()
+df7.replace(to_replace=np.nan, value=85)
+
+df7 = df.copy()
+df7.interpolate(method='linear', limit_direction='forward')
+
+df7 = df.copy()
+df7.dropna()
+
+df7 = df.copy()
+df7.dropna(how='all', inplace=True)
+df7
+
+df7 = df.copy()
+df7.dropna(axis=1)
+
+df7 = df.copy()
+df7.dropna(axis=0, how='any')
+
+df7 = df.copy()
+print("Inconsistencies:\n", df7[df7[['Subject 1', 'Subject 2', 'Subject 3', 'Subject 4', 'Attendance']] < 0])
+
+df7[['Subject 3', 'Subject 4', 'Attendance']] = df7[['Subject 3', 'Subject 4', 'Attendance']].clip(lower=0)
+df7
+
+df7 = df.copy()
+df7.drop_duplicates(inplace=True)
+df7
+
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+df7 = df.copy()
+nc = ['Subject 1', 'Subject 2', 'Subject 3', 'Subject 4', 'Attendance']
+for c in nc:
+    sns.boxplot(x=df7[c])
+    plt.title(f'BoxPlot of {c}')
+    plt.show()
+
+df7 = df.copy()
+for c in nc:
+    Q1 = df7[c].quantile(0.25)
+    Q3 = df7[c].quantile(0.75)
+    IQR = Q3 - Q1
+    
+    lower_bound = Q1 - 1.5 * IQR
+    upper_bound = Q3 + 1.5 * IQR
+    
+    df7[c] = np.where((df7[c] < lower_bound) | (df7[c] > upper_bound), df7[c].median(), df7[c])
+df7
+
+df7 = df.copy()
+from scipy import stats
+z = np.abs(stats.zscore(df7['Subject 1']))
+z
+
+threshold = 1
+print(np.where(z > 1))
+
+df7['log_Attendance'] = np.log1p(df7['Attendance'])
+df7
+
+df7 = df.copy()
+for c in nc:
+    print('column:', c, 'Skew:', df7[c].skew(skipna=True))
+
+from scipy.stats import norm
+for c in nc:
+    data = df7[c]
+    
+    mean = data.mean()
+    sd = data.std()
+    
+    x_axis = np.linspace(data.min(), data.max(), 100)
+    y_axis = norm.pdf(x_axis, mean, sd)
+    
+    plt.plot(x_axis, y_axis, label=f'{c} Normal Distribution')
+    
+plt.legend()
+plt.show()
+
+for c in nc:
+    sns.histplot(df[c], kde=True)
+    plt.title(f'Distribution of {c}')
+    plt.show()
