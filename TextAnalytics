@@ -1,0 +1,69 @@
+import nltk
+import numpy as np
+from nltk.tokenize import word_tokenize, sent_tokenize
+from nltk.corpus import stopwords
+from nltk.stem import SnowballStemmer, WordNetLemmatizer
+from sklearn.feature_extraction.text import TfidfVectorizer
+
+stopword = set(stopwords.words("english"))
+print(stopword)
+
+text = """Natural Language Processing is a field of artificial intelligence that focuses on the interaction between computers and humans through language. It enables machines to understand, interpret, and generate human language. Applications of NLP include chatbots, sentiment analysis, and machine translation. Businesses use NLP to analyze customer feedback and improve user experience."""
+
+word_tokens = word_tokenize(text)
+sent_tokens = sent_tokenize(text)
+
+print(word_tokens)
+
+print(sent_tokens)
+
+stopwords_removed = [words for words in word_tokens if words not in stopword]
+print(stopwords_removed)
+
+punctuation_removed = [words for words in word_tokens if words.isalpha()]
+print(punctuation_removed)
+
+stemmer = SnowballStemmer("english")
+stemmed_words = [stemmer.stem(words) for words in word_tokens]
+print(stemmed_words)
+
+lemmatizer = WordNetLemmatizer()
+lemmatized_words = [lemmatizer.lemmatize(words) for words in word_tokens]
+print(lemmatized_words)
+
+pos_tags = nltk.pos_tag(word_tokens)
+print(pos_tags)
+
+documents = [text, "NLP techniques help in text mining and analytics."]
+vectorizer = TfidfVectorizer()
+tfidf_matrix = vectorizer.fit_transform(documents)
+
+feature_names = vectorizer.get_feature_names_out()
+print("\nTF-IDF Matrix:")
+print(np.round(tfidf_matrix.toarray(), 2))
+print("Feature Names:", feature_names)
+
+vectorizer = TfidfVectorizer()
+tfidf_matrix = vectorizer.fit_transform(documents)
+
+feature_names = vectorizer.get_feature_names_out()
+tfidf_array = tfidf_matrix.toarray()
+
+print("\nTF-IDF Scores:\n")
+for i, doc in enumerate(documents):
+    print(f"Document {i+1}:")
+    for word, score in zip(feature_names, tfidf_array[i]):
+        if score > 0:  
+            print(f"  {word}: {round(score, 4)}")
+    print("-" * 40)  
+
+ wordcloud = WordCloud(
+ width=800,
+ height=400,
+ background_color='white',
+ max_words=200
+ ).generate(document)
+ plt.figure(figsize=(10, 5))
+ plt.imshow(wordcloud, interpolation='bilinear')
+ plt.axis("off")
+ plt.show()
