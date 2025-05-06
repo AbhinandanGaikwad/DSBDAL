@@ -1,0 +1,149 @@
+#Part 1
+
+import pandas as pd
+import numpy as np
+
+df = pd.read_csv("/home/student/Downloads/Bengaluru_House_Data (1).csv")
+df
+
+df.head()
+
+df.isnull().sum()
+
+df.isnull().sum().sum()
+
+df1 = df.fillna(value=0)
+df1
+
+df1.isnull().sum().sum()
+
+df2 = df.fillna(method='pad')
+df2
+
+df2.isnull().sum().sum()
+
+df3 = df.fillna(method='bfill')
+df3
+
+df3.isnull().sum().sum()
+
+df4 = df.fillna(method='pad', axis=1)
+df4
+
+df4.isnull().sum().sum()
+
+df5 = df.fillna(method='bfill', axis=1)
+df5
+
+
+df6 = df.fillna({'society': 'abcd', 'balcony': 'defg'})
+df6
+
+df7 = df.fillna(value=df['balcony'].mean())
+df7
+
+df8 = df.fillna(value=df['balcony'].max())
+df8
+
+df9 = df.fillna(value=df['balcony'].min())
+df9
+
+df10 = df.dropna()
+df10
+
+df.shape
+
+df11 = df.dropna(how='all')
+df11
+
+df12 = df.dropna(how='any')
+df12
+
+df13 = df.dropna(how='any', axis=1)
+df13
+
+df14 = df.replace(to_replace=np.nan, value=87546)
+df14
+
+df14.isnull().sum().sum()
+
+#Part 2
+
+import numpy as np
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split
+
+
+df = pd.read_csv("E:\HDD DOMNLOADS\Wine dataset.csv")
+df
+
+df_columns = ['class', 'Alcohol', 'Malic acid']
+df_columns
+
+sns.kdeplot(df['Alcohol'])
+
+sns.kdeplot(df['Malic acid'])
+
+sns.kdeplot(df['class'])
+
+color_dict = {1:'red', 2:'blue', 3:'green'}
+sns.scatterplot(df['Alcohol'], palette=color_dict)
+
+X_train, X_test, Y_train, Y_test = train_test_split(df.drop(['class'], axis=1), df['class'], test_size=0.3, random_state=42)
+
+X_train
+
+X_test
+
+Y_train
+
+Y_test
+
+X_train.shape
+
+X_test.shape
+
+from sklearn.preprocessing import MinMaxScaler
+scaler = MinMaxScaler()
+scaler.fit(X_train)
+
+X_train_scaled = scaler.transform(X_train)
+X_test_scaled = scaler.transform(X_test)
+
+X_train_scaled = pd.DataFrame(X_train_scaled, columns=X_train.columns)
+X_train_scaled
+
+X_test_scaled = pd.DataFrame(X_test_scaled, columns=X_test.columns)
+X_test_scaled
+
+np.round(X_train.describe(), 1)
+
+fig, (ax1, ax2) = plt.subplots(ncols=2, figsize=(12,5))
+ax1.scatter(X_train['Alcohol'], X_train['Malic acid'], c=Y_train)
+ax1.set_title("Before Scaling")
+ax2.scatter(X_train_scaled['Alcohol'], X_train_scaled['Malic acid'], c=Y_train)
+ax2.set_title("After Scaling")
+plt.show()
+
+fig, (ax1, ax2) = plt.subplots(ncols=2, figsize=(12,5))
+ax1.set_title("Before Scaling")
+sns.kdeplot(X_train['Alcohol'], ax=ax1)
+sns.kdeplot(X_train['Malic acid'], ax=ax1)
+ax2.set_title("After Scaling")
+sns.kdeplot(X_train_scaled['Alcohol'], ax=ax2)
+sns.kdeplot(X_train_scaled['Malic acid'], ax=ax2)
+plt.show()
+
+from sklearn.preprocessing import OneHotEncoder
+
+encoder = OneHotEncoder(sparse=False)
+Y_train_encoded = encoder.fit_transform(Y_train.to_numpy().reshape(-1, 1))
+Y_test_encoded = encoder.transform(Y_test.to_numpy().reshape(-1, 1))
+
+Y_train_encoded_df = pd.DataFrame(Y_train_encoded, columns=encoder.get_feature_names_out(['class']))
+Y_test_encoded_df = pd.DataFrame(Y_test_encoded, columns=encoder.get_feature_names_out(['class']))
+
+print(Y_train_encoded_df.head())
+print(Y_test_encoded_df.head())
